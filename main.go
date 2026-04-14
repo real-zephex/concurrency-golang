@@ -4,6 +4,7 @@ import (
 	"api/scripts"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -47,7 +48,12 @@ func main() {
 	mux.HandleFunc("/concurrent", scripts.ConcurrentManager)
 
 	handler := corsMiddleware(loggerMiddleware(mux))
-	// log messages
-	fmt.Println("Server running on :8080")
-	http.ListenAndServe(":8080", handler)
+
+	port := os.Getenv("PORT")
+  if port == "" {
+    port = "3000"
+  }
+
+	fmt.Println("Server running on :", port)
+	http.ListenAndServe(":"+port, handler)
 }
