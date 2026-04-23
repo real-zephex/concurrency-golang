@@ -12,6 +12,8 @@ func QuotesHandler() (types.ParentQuotes, error) {
 
 	// creating a new request
 	req, err := http.NewRequest("GET", "https://dummyjson.com/quotes", nil)
+	req.Header.Set("Cache-Header", "no-cache, no-store, must-revalidate")
+	req.Header.Set("Vary", "*")
 	if err != nil {
 		return types.ParentQuotes{}, err
 	}

@@ -8,6 +8,15 @@ import (
 	"time"
 )
 
+func noCacheMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate")
+		w.Header().Set("Vary", "*")
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -47,13 +56,20 @@ func main() {
 	mux.HandleFunc("/sequential", scripts.SequentialManager)
 	mux.HandleFunc("/concurrent", scripts.ConcurrentManager)
 
-	handler := corsMiddleware(loggerMiddleware(mux))
+	handler := noCacheMiddleware(corsMiddleware(loggerMiddleware(mux)))
 
 	port := os.Getenv("PORT")
-  if port == "" {
-    port = "3000"
-  }
+	if port == "" {
+		port = "3000"
+	}
+
+	server := &http.Server{
+		Addr:         fmt.Sprintf(":%s", port),
+		Handler:      handler,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+	}
 
 	fmt.Println("Server running on :", port)
-	http.ListenAndServe(":"+port, handler)
+	server.ListenAndServe()
 }

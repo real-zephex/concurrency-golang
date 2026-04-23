@@ -12,6 +12,8 @@ func TodoHandler() (types.ParentTodos, error) {
 
 	// creating a new request
 	req, err := http.NewRequest("GET", "https://dummyjson.com/todos", nil)
+	req.Header.Set("Cache-Header", "no-cache, no-store, must-revalidate")
+	req.Header.Set("Vary", "*")
 	if err != nil {
 		return types.ParentTodos{}, err
 	}
