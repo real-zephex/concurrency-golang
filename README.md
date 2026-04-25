@@ -1,4 +1,6 @@
-# Go API Backend
+# Go API Backend (Mock API)
+
+This is a Mock API for the project **Sequential-vs-Concurrent Data Fetching**. This API performs both the sequential and concurrent data fetching from dummyjson.com and feeds the aggregated results to the frontend.
 
 Simple Go HTTP server that aggregates data from dummyjson.com. It exposes two endpoints that fetch posts, quotes, and todos either sequentially or concurrently, and returns a combined JSON payload with timings.
 
