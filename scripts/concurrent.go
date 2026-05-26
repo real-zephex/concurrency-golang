@@ -10,36 +10,6 @@ import (
 	"time"
 )
 
-func getPosts(ch *types.Combined, wg *sync.WaitGroup) {
-	defer wg.Done()
-	res, err := routes.PostsHandler()
-	if err != nil {
-		ch.Posts = types.ParentPosts{}
-		return
-	}
-	ch.Posts = res
-}
-
-func getQuotes(ch *types.Combined, wg *sync.WaitGroup) {
-	defer wg.Done()
-	res, err := routes.QuotesHandler()
-	if err != nil {
-		ch.Quotes = types.ParentQuotes{}
-		return
-	}
-	ch.Quotes = res
-}
-
-func getTodos(ch *types.Combined, wg *sync.WaitGroup) {
-	defer wg.Done()
-	res, err := routes.TodoHandler()
-	if err != nil {
-		ch.Todos = types.ParentTodos{}
-		return
-	}
-	ch.Todos = res
-}
-
 func ConcurrentManager(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 
@@ -49,8 +19,6 @@ func ConcurrentManager(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Run the three fetches concurrently but avoid writing to the same
-	// Combined struct from multiple goroutines to prevent data races.
 	var wg sync.WaitGroup
 	var posts types.ParentPosts
 	var quotes types.ParentQuotes
@@ -58,7 +26,10 @@ func ConcurrentManager(w http.ResponseWriter, r *http.Request) {
 
 	wg.Add(3)
 
-	// Each goroutine writes to its own local variable and reports via Done.
+	/*
+		Each function will assign the result to its local variable only.
+		We will be combining all of them into one combined struct later.
+	*/
 	go func() {
 		defer wg.Done()
 		res, err := routes.PostsHandler()
